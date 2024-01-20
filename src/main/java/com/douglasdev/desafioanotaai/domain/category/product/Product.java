@@ -20,4 +20,12 @@ public class Product {
     public String ownerID;
     public Integer price;
     public Category category;
+
+    public Product (ProductDTO productDTO){
+        this.title = productDTO.title();
+        this.description = productDTO.description();
+        this.ownerID = productDTO.ownerID();
+        this.price = productDTO.price();
+        this.category = productDTO.category();
+    }
 }
