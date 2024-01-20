@@ -51,7 +51,10 @@ public class ProductService {
     }
 
     public Void deleteCategory(String id){
-        this.productRepository.deleteById(id);
+        Product product = this.productRepository.findById(id)
+                .orElseThrow(ProductException::new);
+
+        this.productRepository.delete(product);
 
         return null;
     }

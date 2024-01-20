@@ -46,7 +46,10 @@ public class CategoryService {
     }
 
     public Void deleteCategory(String id){
-        this.categoryRepository.deleteById(id);
+        Category category = this.categoryRepository.findById(id)
+                .orElseThrow(CategoryException::new);
+
+        this.categoryRepository.delete(category);
 
         return null;
     }
