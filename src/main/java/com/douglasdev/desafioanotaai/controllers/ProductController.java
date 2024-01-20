@@ -11,6 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("api/product")
@@ -23,33 +25,33 @@ public class ProductController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Product> insertCategory (@RequestBody ProductDTO productDTO){
+    public ResponseEntity<Product> insertProduct (@RequestBody ProductDTO productDTO){
         Product product =  productService.insert(productDTO);
         return ResponseEntity.ok().body(product);
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllCategory(){
+    public ResponseEntity<List<Product>> getAllProduct(){
         List<Product> listProduct =  this.productService.getAllProduct();
         return ResponseEntity.ok().body(listProduct);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Product> getCategoryById(@PathVariable("id") String id){
-        Product product =  this.productService.getCategoryByid(id);
+    public ResponseEntity<Optional<Product>> getProductyById(@PathVariable("id") String id){
+        Optional<Product> product =  this.productService.getProductByid(id);
         return ResponseEntity.ok().body(product);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Product> updateCategory(@PathVariable("id") String id,
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") String id,
                                                    @RequestBody ProductDTO productDTO){
-        Product updateProduct = this.productService.updateCategory(id, productDTO);
+        Product updateProduct = this.productService.updateProduct(id, productDTO);
         return ResponseEntity.ok().body(updateProduct);
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable("id") String id){
-        this.productService.deleteCategory(id);
+    public ResponseEntity<Void> deleteProduct(@PathVariable("id") String id){
+        this.productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
 
     }

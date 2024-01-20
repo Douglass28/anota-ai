@@ -11,18 +11,24 @@ import com.douglasdev.desafioanotaai.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
 
     private ProductRepository productRepository;
+    private CategoryService categoryService;
 
-    public ProductService (ProductRepository productRepository){
+    public ProductService (CategoryService categoryService, ProductRepository productRepository){
+        this.categoryService = categoryService;
         this.productRepository = productRepository;
     }
 
     public Product insert(ProductDTO productDTO){
+        Category category = categoryService.getCategoryById(productDTO.categoryId())
+                .orElseThrow(CategoryException::new);
         Product product = new Product(productDTO);
+        product.setCategory(category);
         this.productRepository.save(product);
 
         return product;
@@ -32,25 +38,28 @@ public class ProductService {
         return this.productRepository.findAll();
     }
 
-    public Product getCategoryByid(String id){
-        Product product = productRepository.findById(id).orElseThrow(ProductException::new);
+    public Optional<Product> getProductByid(String id){
+        Optional <Product> product = productRepository.findById(id);
         return product;
     }
 
-    public Product updateCategory(String id, ProductDTO productDTO){
-        Product updateProduct = this.productRepository.findById(id).orElseThrow(ProductException::new);
-        updateProduct.setTitle(productDTO.title());
-        updateProduct.setDescription(productDTO.description());
-        updateProduct.setOwnerID(productDTO.ownerID());
-        updateProduct.setCategory(productDTO.category());
-        updateProduct.setPrice(productDTO.price());
+    public Product updateProduct(String id, ProductDTO productDTO){
+        Product updateProduct = this.productRepository.findById(id)
+                .orElseThrow(ProductException::new);
 
-        Product product = productRepository.save(updateProduct);
+        this.categoryService.getCategoryById(productDTO.categoryId())
+                .ifPresent(updateProduct::setCategory);
 
-        return product;
+        if (!productDTO.title().isEmpty()) updateProduct.setTitle(productDTO.title());
+        if (!productDTO.description().isEmpty()) updateProduct.setDescription(productDTO.title());
+        if (!productDTO.ownerID().isEmpty()) updateProduct.setOwnerID(productDTO.ownerID());
+
+        this.productRepository.save(updateProduct);
+
+        return updateProduct;
     }
 
-    public Void deleteCategory(String id){
+    public Void deleteProduct(String id){
         Product product = this.productRepository.findById(id)
                 .orElseThrow(ProductException::new);
 

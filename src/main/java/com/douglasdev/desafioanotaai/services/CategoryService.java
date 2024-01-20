@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -29,20 +30,23 @@ public class CategoryService {
        return this.categoryRepository.findAll();
     }
 
-    public Category getCategoryByid(String id){
-        Category category = categoryRepository.findById(id).orElseThrow(CategoryException::new);
+    public Optional<Category> getCategoryById(String id){
+       Optional<Category> category = categoryRepository.findById(id);
         return category;
     }
 
     public Category updateCategory(String id, CategoryDTO categoryDTO){
+
         Category updateCategory = this.categoryRepository.findById(id).orElseThrow(CategoryException::new);
-        updateCategory.setTitle(categoryDTO.title());
-        updateCategory.setDescription(categoryDTO.description());
-        updateCategory.setOwnerID(categoryDTO.ownerID());
 
-        Category category = categoryRepository.save(updateCategory);
+        if (!categoryDTO.ownerID().isEmpty()) updateCategory.setOwnerID(categoryDTO.ownerID());
+        if (!categoryDTO.description().isEmpty()) updateCategory.setDescription(categoryDTO.description());
+        if (!categoryDTO.title().isEmpty()) updateCategory.setTitle(categoryDTO.title());
 
-        return category;
+        this.categoryRepository.save(updateCategory);
+
+        return updateCategory;
+
     }
 
     public Void deleteCategory(String id){
