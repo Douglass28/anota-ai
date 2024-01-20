@@ -47,12 +47,14 @@ public class ProductService {
         Product updateProduct = this.productRepository.findById(id)
                 .orElseThrow(ProductException::new);
 
-        this.categoryService.getCategoryById(productDTO.categoryId())
-                .ifPresent(updateProduct::setCategory);
+        if (productDTO.categoryId() != null) {
+            this.categoryService.getCategoryById(productDTO.categoryId())
+                    .ifPresent(updateProduct::setCategory);
+        }
 
         if (!productDTO.title().isEmpty()) updateProduct.setTitle(productDTO.title());
         if (!productDTO.description().isEmpty()) updateProduct.setDescription(productDTO.title());
-        if (!productDTO.ownerID().isEmpty()) updateProduct.setOwnerID(productDTO.ownerID());
+        if (!(productDTO.price() == null)) updateProduct.setPrice(productDTO.price());
 
         this.productRepository.save(updateProduct);
 

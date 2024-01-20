@@ -17,7 +17,6 @@ public class Category {
     private String title;
     private String description;
     private String  ownerID;
-    private CategoryDTO categoryDTO;
 
     public Category(CategoryDTO categoryDTO){
         this.title = categoryDTO.title();
