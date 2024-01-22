@@ -8,6 +8,8 @@ import com.douglasdev.desafioanotaai.domain.category.product.ProductDTO;
 import com.douglasdev.desafioanotaai.domain.category.product.ProductException;
 import com.douglasdev.desafioanotaai.repositories.CategoryRepository;
 import com.douglasdev.desafioanotaai.repositories.ProductRepository;
+import com.douglasdev.desafioanotaai.services.aws.AwsSnsService;
+import com.douglasdev.desafioanotaai.services.aws.MessageDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,18 +20,24 @@ public class ProductService {
 
     private ProductRepository productRepository;
     private CategoryService categoryService;
+    private AwsSnsService awsSnsService;
 
-    public ProductService (CategoryService categoryService, ProductRepository productRepository){
+    public ProductService (CategoryService categoryService, ProductRepository productRepository, AwsSnsService awsSnsService){
         this.categoryService = categoryService;
         this.productRepository = productRepository;
+        this.awsSnsService = awsSnsService;
     }
 
     public Product insert(ProductDTO productDTO){
         Category category = categoryService.getCategoryById(productDTO.categoryId())
                 .orElseThrow(CategoryException::new);
+
         Product product = new Product(productDTO);
         product.setCategory(category);
+
         this.productRepository.save(product);
+
+        this.awsSnsService.publish(new MessageDTO(product.getOwnerID()));
 
         return product;
     }
@@ -57,6 +65,8 @@ public class ProductService {
         if (!(productDTO.price() == null)) updateProduct.setPrice(productDTO.price());
 
         this.productRepository.save(updateProduct);
+
+        this.awsSnsService.publish(new MessageDTO(updateProduct.getOwnerID()));
 
         return updateProduct;
     }
