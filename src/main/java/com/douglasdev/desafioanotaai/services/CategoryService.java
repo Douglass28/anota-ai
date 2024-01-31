@@ -4,6 +4,8 @@ import com.douglasdev.desafioanotaai.domain.category.Category;
 import com.douglasdev.desafioanotaai.domain.category.CategoryDTO;
 import com.douglasdev.desafioanotaai.domain.category.CategoryException;
 import com.douglasdev.desafioanotaai.repositories.CategoryRepository;
+import com.douglasdev.desafioanotaai.services.aws.AwsSnsService;
+import com.douglasdev.desafioanotaai.services.aws.MessageDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +17,19 @@ public class CategoryService {
 
     private CategoryRepository categoryRepository;
 
-    public CategoryService (CategoryRepository categoryRepository){
+    private AwsSnsService awsSnsService;
+
+    public CategoryService (CategoryRepository categoryRepository, AwsSnsService awsSnsService){
         this.categoryRepository = categoryRepository;
+        this.awsSnsService = awsSnsService;
     }
 
     public Category insert(CategoryDTO categoryDTO){
         Category category = new Category(categoryDTO);
         this.categoryRepository.save(category);
+
+        this.awsSnsService.publish(new MessageDTO(category.toString()));
+
 
         return category;
     }
@@ -44,6 +52,8 @@ public class CategoryService {
         if (!categoryDTO.title().isEmpty()) updateCategory.setTitle(categoryDTO.title());
 
         this.categoryRepository.save(updateCategory);
+
+        this.awsSnsService.publish(new MessageDTO(updateCategory.toString()));
 
         return updateCategory;
 
